@@ -1,16 +1,28 @@
 import React, { Component } from "react";
 import { Formik, Field } from "formik";
-import axios from 'axios';
+import axios from "axios";
+import * as Yup from "yup";
+import FieldErrorComponent from './field-error.component';
+
+const ProjectSchema = Yup.object().shape({
+  projectName: Yup.string()
+    .trim()
+    .required("Project name is required"),
+  description: Yup.string()
+    .trim()
+    .required("Description is required"),
+  start_date: Yup.string().trim().required()
+});
 
 class AddProject extends Component {
   constructor(props) {
     super(props);
-      this.theForm = React.createRef();
+    this.theForm = React.createRef();
   }
-    
-    componentDidMount() {
-        console.log(this.theForm.current);
-    }
+
+  componentDidMount() {
+    console.log(this.theForm.current);
+  }
 
   onSubmit = (values, actions) => {
     setTimeout(() => {
@@ -26,15 +38,20 @@ class AddProject extends Component {
             <div className="col-md-8 m-auto">
               <h5 className="display-4 text-center">Create Project form</h5>
               <hr />
-              <Formik ref={this.theForm} onSubmit={this.onSubmit}>
-                {props => (
-                  <form onSubmit={props.handleSubmit}>
+              <Formik
+                ref={this.theForm}
+                onSubmit={this.onSubmit}
+                validationSchema={ProjectSchema}
+              >
+                {({ errors, touched, handleSubmit }) => (
+                  <form onSubmit={handleSubmit}>
                     <div className="form-group">
                       <Field
                         className="form-control form-control-lg "
                         placeholder="Project Name"
                         name="projectName"
                       />
+                      <FieldErrorComponent field={errors.projectName} />
                     </div>
                     <div className="form-group">
                       <Field
@@ -43,6 +60,11 @@ class AddProject extends Component {
                         placeholder="Unique Project ID"
                         name="projectIdentifier"
                       />
+                      {errors.description && (
+                        <small className="form-text text-danger">
+                          {errors.description}
+                        </small>
+                      )}
                     </div>
                     <div className="form-group">
                       <Field
